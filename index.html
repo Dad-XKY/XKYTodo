@@ -99,12 +99,19 @@
       render();
       input.focus();
     });
-    document.getElementById('sort-button').addEventListener('click', () => {
+    let ascending = true;
+    const sortButton = document.getElementById('sort-button');
+    sortButton.addEventListener('click', () => {
       todos.sort((a, b) => {
         const aTime = a.deadline ? new Date(a.deadline).getTime() : Infinity;
         const bTime = b.deadline ? new Date(b.deadline).getTime() : Infinity;
-        return aTime === bTime ? 0 : aTime - bTime;
+        if (aTime === bTime) return 0;
+        if (aTime === Infinity) return 1;
+        if (bTime === Infinity) return -1;
+        return ascending ? aTime - bTime : bTime - aTime;
       });
+      sortButton.textContent = `按截止时间排序 ${ascending ? '↑' : '↓'}`;
+      ascending = !ascending;
       save();
       render();
     });
