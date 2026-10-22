@@ -19,6 +19,7 @@
     li input { width: 17px; height: 17px; cursor: pointer; }
     .todo-content { flex: 1; min-width: 0; overflow-wrap: anywhere; }
     .deadline { display: block; margin-top: 5px; color: #777; font-size: 14px; }
+    .deadline.overdue { color: #c5221f; font-weight: bold; }
     li.done .todo-text { color: #888; text-decoration: line-through; }
     @media (max-width: 480px) { main { margin: 32px auto; padding: 24px; } h1 { font-size: 32px; } li, input[type="text"] { font-size: 16px; } button { padding: 10px 14px; font-size: 16px; } }
   </style>
@@ -71,7 +72,9 @@
           const deadline = document.createElement('time');
           deadline.className = 'deadline';
           deadline.dateTime = todo.deadline;
-          deadline.textContent = `截止时间：${todo.deadline.replace('T', ' ')}`;
+          const overdue = !todo.done && new Date(todo.deadline).getTime() <= Date.now();
+          deadline.classList.toggle('overdue', overdue);
+          deadline.textContent = `${overdue ? '已过期 · ' : ''}截止时间：${todo.deadline.replace('T', ' ')}`;
           content.append(deadline);
         }
         const remove = document.createElement('button');
@@ -95,6 +98,8 @@
       input.focus();
     });
     render();
+    // 页面保持打开时，定期更新到期状态。
+    setInterval(render, 30000);
   </script>
 </body>
 </html>
