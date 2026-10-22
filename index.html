@@ -14,6 +14,7 @@
     .deadline-field { display: flex; align-items: center; gap: 8px; font-size: 16px; }
     input[type="datetime-local"] { max-width: 100%; padding: 11px; font: inherit; }
     button { padding: 12px 20px; font-size: 18px; cursor: pointer; }
+    button:disabled { cursor: not-allowed; opacity: .5; }
     ul { list-style: none; padding: 0; margin: 0; }
     li { display: flex; align-items: center; gap: 12px; min-height: 84px; border-bottom: 1px solid #eee; font-size: 20px; }
     li input { width: 17px; height: 17px; cursor: pointer; }
@@ -54,6 +55,7 @@
       try { localStorage.setItem(storageKey, JSON.stringify(todos)); } catch { /* 页面仍可在当前会话使用 */ }
     }
     function render() {
+      document.getElementById('complete-all-button').disabled = !todos.some(todo => !todo.done);
       list.replaceChildren();
       todos.forEach((todo, index) => {
         const item = document.createElement('li');
