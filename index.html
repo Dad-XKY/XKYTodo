@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>马克待办</title>
+  <style>
+    * { box-sizing: border-box; }
+    body { margin: 0; background: #f5f5f5; font-family: Arial, "Microsoft YaHei", sans-serif; color: #111; }
+    main { width: min(800px, calc(100% - 32px)); margin: 75px auto; padding: 32px 36px; background: #fff; border-radius: 14px; box-shadow: 0 4px 20px rgba(0, 0, 0, .08); }
+    h1 { margin: 0 0 28px; font-size: 40px; }
+    form { display: flex; gap: 12px; margin-bottom: 28px; }
+    input[type="text"] { flex: 1; min-width: 0; padding: 12px 15px; font-size: 20px; }
+    button { padding: 12px 20px; font-size: 18px; cursor: pointer; }
+    ul { list-style: none; padding: 0; margin: 0; }
+    li { display: flex; align-items: center; gap: 12px; min-height: 84px; border-bottom: 1px solid #eee; font-size: 20px; }
+    li input { width: 17px; height: 17px; cursor: pointer; }
+    li span { flex: 1; overflow-wrap: anywhere; }
+    li.done span { color: #888; text-decoration: line-through; }
+    @media (max-width: 480px) { main { margin: 32px auto; padding: 24px; } h1 { font-size: 32px; } li, input[type="text"] { font-size: 16px; } button { padding: 10px 14px; font-size: 16px; } }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>马克待办</h1>
+    <form id="todo-form">
+      <input id="todo-input" type="text" placeholder="输入一个待办事项" aria-label="待办事项" autocomplete="off">
+      <button type="submit">添加</button>
+    </form>
+    <ul id="todo-list" aria-label="待办事项列表"></ul>
+  </main>
+  <script>
+    const storageKey = 'mark-todos';
+    const initialTodos = [
+      { text: '关注「马克的技术工作坊」', done: false },
+      { text: '给这期 Git 教程点赞', done: true }
+    ];
+    let todos;
+    try {
+      const saved = localStorage.getItem(storageKey);
+      const parsed = saved === null ? initialTodos : JSON.parse(saved);
+      todos = Array.isArray(parsed) ? parsed : initialTodos;
+    } catch { todos = initialTodos; }
+    const list = document.getElementById('todo-list');
+    const input = document.getElementById('todo-input');
+    function save() {
+      try { localStorage.setItem(storageKey, JSON.stringify(todos)); } catch { /* 页面仍可在当前会话使用 */ }
+    }
+    function render() {
+      list.replaceChildren();
+      todos.forEach((todo, index) => {
+        const item = document.createElement('li');
+        item.classList.toggle('done', todo.done);
+        const checkbox = document.createElement('input');
+        checkbox.type = 'checkbox';
+        checkbox.checked = todo.done;
+        checkbox.setAttribute('aria-label', `标记完成：${todo.text}`);
+        checkbox.addEventListener('change', () => { todo.done = checkbox.checked; save(); render(); });
+        const text = document.createElement('span');
+        text.textContent = todo.text;
+        const remove = document.createElement('button');
+        remove.type = 'button';
+        remove.textContent = '删除';
+        remove.setAttribute('aria-label', `删除：${todo.text}`);
+        remove.addEventListener('click', () => { todos.splice(index, 1); save(); render(); });
+        item.append(checkbox, text, remove);
+        list.append(item);
+      });
+    }
+    document.getElementById('todo-form').addEventListener('submit', event => {
+      event.preventDefault();
+      const text = input.value.trim();
+      if (!text) { input.focus(); return; }
+      todos.push({ text, done: false });
+      input.value = '';
+      save();
+      render();
+      input.focus();
+    });
+    render();
+  </script>
+</body>
+</html>
