@@ -32,6 +32,7 @@
       <label class="deadline-field" for="deadline-input">截止时间 <input id="deadline-input" type="datetime-local"></label>
       <button type="submit">添加</button>
     </form>
+    <button id="complete-all-button" type="button">一键全部完成</button>
     <ul id="todo-list" aria-label="待办事项列表"></ul>
   </main>
   <script>
@@ -96,6 +97,11 @@
       save();
       render();
       input.focus();
+    });
+    document.getElementById('complete-all-button').addEventListener('click', () => {
+      todos.forEach(todo => { todo.done = true; });
+      save();
+      render();
     });
     render();
     // 页面保持打开时，定期更新到期状态。
